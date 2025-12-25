@@ -1,0 +1,23 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "dotenv -e ../.env -- prisma migrate dev --schema=./prisma/schema.prisma",
+    "prisma:studio": "dotenv -e ../.env -- prisma studio --schema=./prisma/schema.prisma"
+  },
+  "dependencies": {
+    "@casl/ability": "^6.6.1",
+    "@prisma/client": "^5.7.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^11.0.0",
+    "prisma": "^5.7.1"
+  }
+}
