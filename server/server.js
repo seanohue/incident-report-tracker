@@ -2,7 +2,10 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
-import { defineAbility } from './auth/ability.js';
+import incidentsRouter from './routes/incidents.js';
+import usersRouter from './routes/users.js';
+import reportReasonsRouter from './routes/report-reasons.js';
+import auditLogsRouter from './routes/audit-logs.js';
 
 dotenv.config();
 
@@ -17,22 +20,11 @@ app.get('/api/health', (req, res) => {
   res.json({ message: 'Backend is running!' });
 });
 
-// Example protected route
-app.get('/api/protected', async (req, res) => {
-  try {
-    // In a real app, you'd get user from JWT/session
-    const user = { id: 1, role: 'user' };
-    const ability = defineAbility(user);
-    
-    if (ability.can('read', 'Post')) {
-      res.json({ message: 'You can read posts!' });
-    } else {
-      res.status(403).json({ error: 'Forbidden' });
-    }
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+// Routes
+app.use('/api/incidents', incidentsRouter);
+app.use('/api/users', usersRouter);
+app.use('/api/report-reasons', reportReasonsRouter);
+app.use('/api/audit-logs', auditLogsRouter);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
@@ -44,4 +36,3 @@ process.on('SIGINT', async () => {
   await prisma.$disconnect();
   process.exit(0);
 });
-

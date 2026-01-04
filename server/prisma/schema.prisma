@@ -10,24 +10,82 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  Player
+  Moderator
+  Admin
+}
+
+// Used by audit logging system
+enum AuditAction {
+  INCIDENT_CREATED
+  INCIDENT_UPDATED
+  INCIDENT_RESOLVED
+  INCIDENT_REOPENED
+  INCIDENT_DELETED
+  USER_BANNED
+  USER_UNBANNED
+  USER_ROLE_CHANGED
+  REPORT_REASON_CREATED
+  REPORT_REASON_DELETED
+  MODERATOR_ADDED
+  MODERATOR_REMOVED
+}
+
 model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String?
-  role      String   @default("user")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  posts     Post[]
+  id              Int       @id @default(autoincrement())
+  email           String    @unique
+  name            String?
+  role            UserRole  @default(Player)
+  banned          Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  // Incidents this user reported
+  reportedIncidents Incident[] @relation("Reporter")
+  
+  // Incidents this user resolved (as moderator)
+  resolvedIncidents Incident[] @relation("Resolver")
+  
+  // Audit logs this user created
+  auditLogs       AuditLog[] @relation("AuditActor")
 }
 
-model Post {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  authorId  Int
-  author    User     @relation(fields: [authorId], references: [id])
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model ReportReason {
+  id        Int       @id @default(autoincrement())
+  textKey   String    @unique
+  createdAt DateTime  @default(now())
+  
+  incidents Incident[]
 }
 
+model Incident {
+  id             Int          @id @default(autoincrement())
+  reporterId     Int
+  reporter       User         @relation("Reporter", fields: [reporterId], references: [id])
+  resolved       Boolean      @default(false)
+  resolverId     Int?
+  resolver       User?        @relation("Resolver", fields: [resolverId], references: [id])
+  reportReasonId Int
+  reportReason   ReportReason @relation(fields: [reportReasonId], references: [id])
+  details        String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model AuditLog {
+  id         Int         @id @default(autoincrement())
+  action     AuditAction
+  actorId    Int
+  actor      User        @relation("AuditActor", fields: [actorId], references: [id])
+  entityType String      // "Incident", "User", "ReportReason", etc.
+  entityId   Int         // ID of the affected entity
+  metadata   Json?       // { before: {...}, after: {...}, field: "resolved", etc. }
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime    @default(now())
+  
+  @@index([entityType, entityId])
+  @@index([actorId])
+  @@index([createdAt])
+}
