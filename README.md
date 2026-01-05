@@ -1,6 +1,6 @@
-# Full-Stack App
+# Incident Report Tracking App
 
-React frontend + Node.js backend with Prisma ORM, CASL auth, and PostgreSQL.
+React frontend + Node.js backend with Prisma ORM, CASL auth, and PostgreSQL. A system for tracking and managing incident reports with role-based access control (Player, Moderator, Admin).
 
 ## Setup
 
@@ -19,7 +19,15 @@ React frontend + Node.js backend with Prisma ORM, CASL auth, and PostgreSQL.
    cd server
    npm run prisma:generate
    npm run prisma:migrate
+   npm run prisma:seed
    ```
+   
+   The seed script creates three test users:
+   - Alice Player (Player role)
+   - Bob Moderator (Moderator role)
+   - Charlie Admin (Admin role)
+   
+   It also creates default report reasons: Inappropriate Communications, Griefing, Cheating, and Other.
 
 4. Start development servers:
    ```bash
@@ -49,4 +57,5 @@ This will start:
 - `npm run dev:client` - Start only frontend
 - `npm run dev:server` - Start only backend
 - `npm run prisma:studio` - Open Prisma Studio (from server directory)
+- `npm run prisma:seed` - Seed database with test users and report reasons (from server directory)
 

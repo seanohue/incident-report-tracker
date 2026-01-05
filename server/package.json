@@ -7,7 +7,11 @@
     "start": "node server.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "dotenv -e ../.env -- prisma migrate dev --schema=./prisma/schema.prisma",
-    "prisma:studio": "dotenv -e ../.env -- prisma studio --schema=./prisma/schema.prisma"
+    "prisma:studio": "dotenv -e ../.env -- prisma studio --schema=./prisma/schema.prisma",
+    "prisma:seed": "dotenv -e ../.env -- node prisma/seed.js"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   },
   "dependencies": {
     "@casl/ability": "^6.6.1",

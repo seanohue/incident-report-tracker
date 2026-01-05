@@ -20,6 +20,25 @@ app.get('/api/health', (req, res) => {
   res.json({ message: 'Backend is running!' });
 });
 
+// Test endpoint to get users without auth (for frontend dropdown)
+app.get('/api/test/users', async (req, res) => {
+  try {
+    const users = await prisma.user.findMany({
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        role: true,
+        banned: true,
+      },
+      orderBy: { role: 'asc' },
+    });
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Routes
 app.use('/api/incidents', incidentsRouter);
 app.use('/api/users', usersRouter);
