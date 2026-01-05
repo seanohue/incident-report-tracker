@@ -8,7 +8,6 @@ function App() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check backend health
     fetch('/api/health')
       .then(res => res.json())
       .then(data => setMessage(data.message))
@@ -17,6 +16,7 @@ function App() {
     // Fetch users
     axios.get('/api/test/users')
       .then(response => {
+        console.log(response);
         setUsers(response.data);
         setLoading(false);
       })
