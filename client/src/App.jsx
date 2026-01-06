@@ -1,81 +1,44 @@
-import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { AppProvider, useApp } from './context/AppContext';
+import { useBackendHealth } from './hooks/useBackendHealth';
+import { BackendHealthStatus } from './components/BackendHealthStatus';
+import { UserSelect } from './components/UserSelect';
+import { PlayerDashboard } from './components/PlayerDashboard';
+import { ModeratorDashboard } from './components/ModeratorDashboard';
+import { AdminDashboard } from './components/AdminDashboard';
 
-function App() {
-  const [message, setMessage] = useState('Loading...');
-  const [users, setUsers] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch('/api/health')
-      .then(res => res.json())
-      .then(data => setMessage(data.message))
-      .catch(() => setMessage('Backend not connected'));
-
-    // Fetch users
-    axios.get('/api/test/users')
-      .then(response => {
-        console.log(response);
-        setUsers(response.data);
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error('Error fetching users:', error);
-        setLoading(false);
-      });
-  }, []);
-
-  const handleUserChange = (e) => {
-    const userId = parseInt(e.target.value);
-    const user = users.find(u => u.id === userId);
-    setSelectedUser(user);
-  };
+function AppContent() {
+  const { isHealthy, isChecking } = useBackendHealth();
+  const { state } = useApp();
 
   return (
-    <div style={{ padding: '2rem', fontFamily: 'system-ui', maxWidth: '800px', margin: '0 auto' }}>
+    <div style={{ padding: '2rem', fontFamily: 'system-ui', maxWidth: '1200px', margin: '0 auto' }}>
       <h1>Incident Report Tracking App</h1>
-      <p>{message}</p>
+      
+      <BackendHealthStatus isHealthy={isHealthy} isChecking={isChecking} />
+      
+      <UserSelect />
 
-      <div style={{ marginTop: '2rem' }}>
-        <label htmlFor="user-select" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-          Select User:
-        </label>
-        {loading ? (
-          <p>Loading users...</p>
-        ) : (
-          <select
-            id="user-select"
-            value={selectedUser?.id || ''}
-            onChange={handleUserChange}
-            style={{
-              padding: '0.5rem',
-              fontSize: '1rem',
-              minWidth: '300px',
-              borderRadius: '4px',
-              border: '1px solid #ccc'
-            }}
-          >
-            <option value="">-- Select a user --</option>
-            {users.map(user => (
-              <option key={user.id} value={user.id}>
-                {user.name} ({user.role}){user.banned ? ' [BANNED]' : ''}
-              </option>
-            ))}
-          </select>
-        )}
-
-        {selectedUser && (
-          <div style={{ marginTop: '1rem', padding: '1rem', backgroundColor: '#f5f5f5', borderRadius: '4px' }}>
-            <h3>Selected User:</h3>
-            <p><strong>Name:</strong> {selectedUser.name}</p>
-            <p><strong>Email:</strong> {selectedUser.email}</p>
-            <p><strong>Role:</strong> {selectedUser.role}</p>
-            <p><strong>Status:</strong> {selectedUser.banned ? 'Banned' : 'Active'}</p>
-          </div>
-        )}
-      </div>
+      {state.selectedUser && (
+        <div style={{ marginTop: '2rem' }}>
+          {state.selectedUser.role === 'Player' && <PlayerDashboard />}
+          {state.selectedUser.role === 'Moderator' && <ModeratorDashboard />}
+          {state.selectedUser.role === 'Admin' && <AdminDashboard />}
+          {!['Player', 'Moderator', 'Admin'].includes(state.selectedUser.role) && (
+            <div style={{ padding: '1rem', backgroundColor: '#f8d7da', color: '#721c24', borderRadius: '4px' }}>
+              That role is not valid. Please contact an Administrator.
+            </div>
+          )}
+        </div>
+      )}
     </div>
+  );
+}
+
+function App() {
+  return (
+    <AppProvider>
+      <AppContent />
+    </AppProvider>
   );
 }
 

@@ -40,6 +40,7 @@ router.get('/', async (req, res) => {
       where,
       include: {
         reporter: { select: { id: true, name: true, email: true } },
+        reportedUser: { select: { id: true, name: true, email: true } },
         resolver: { select: { id: true, name: true, email: true } },
         reportReason: true,
       },
@@ -48,6 +49,7 @@ router.get('/', async (req, res) => {
 
     res.json(incidents);
   } catch (error) {
+    console.error('Error fetching incidents:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -65,6 +67,7 @@ router.get('/:id', async (req, res) => {
       where: { id: parseInt(req.params.id) },
       include: {
         reporter: { select: { id: true, name: true, email: true } },
+        reportedUser: { select: { id: true, name: true, email: true } },
         resolver: { select: { id: true, name: true, email: true } },
         reportReason: true,
       },
@@ -81,6 +84,7 @@ router.get('/:id', async (req, res) => {
 
     res.json(incident);
   } catch (error) {
+    console.error('Error fetching single incident:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -103,7 +107,7 @@ router.post('/', async (req, res) => {
       return res.status(403).json({ error: 'Forbidden' });
     }
 
-    const { reportReasonId, details } = req.body;
+    const { reportReasonId, details, reportedUserId } = req.body;
 
     if (!reportReasonId || !details) {
       return res.status(400).json({ error: 'reportReasonId and details are required' });
@@ -114,9 +118,11 @@ router.post('/', async (req, res) => {
         reporterId: user.id,
         reportReasonId: parseInt(reportReasonId),
         details,
+        reportedUserId: reportedUserId ? parseInt(reportedUserId) : null,
       },
       include: {
         reporter: { select: { id: true, name: true, email: true } },
+        reportedUser: { select: { id: true, name: true, email: true } },
         reportReason: true,
       },
     });
@@ -133,6 +139,7 @@ router.post('/', async (req, res) => {
 
     res.status(201).json(incident);
   } catch (error) {
+    console.error('Error creating incident:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -195,6 +202,7 @@ router.patch('/:id', async (req, res) => {
       data: updateData,
       include: {
         reporter: { select: { id: true, name: true, email: true } },
+        reportedUser: { select: { id: true, name: true, email: true } },
         resolver: { select: { id: true, name: true, email: true } },
         reportReason: true,
       },
@@ -214,6 +222,7 @@ router.patch('/:id', async (req, res) => {
 
     res.json(updated);
   } catch (error) {
+    console.error('Error updating incident:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -256,6 +265,7 @@ router.delete('/:id', async (req, res) => {
 
     res.status(204).send();
   } catch (error) {
+    console.error('Error deleting incident:', error);
     res.status(500).json({ error: error.message });
   }
 });

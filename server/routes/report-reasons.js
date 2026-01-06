@@ -27,6 +27,7 @@ router.get('/', async (req, res) => {
 
     res.json(reasons);
   } catch (error) {
+    console.error('Error fetching report reasons:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -61,6 +62,7 @@ router.post('/', async (req, res) => {
 
     res.status(201).json(reason);
   } catch (error) {
+    console.error('Error creating report reason:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -98,6 +100,7 @@ router.delete('/:id', async (req, res) => {
 
     res.status(204).send();
   } catch (error) {
+    console.error('Error deleting report reason:', error);
     res.status(500).json({ error: error.message });
   }
 });

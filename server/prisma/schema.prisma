@@ -47,6 +47,9 @@ model User {
   // Incidents this user resolved (as moderator)
   resolvedIncidents Incident[] @relation("Resolver")
   
+  // Incidents where this user was reported
+  incidentsWhereReported Incident[] @relation("Reported")
+  
   // Audit logs this user created
   auditLogs       AuditLog[] @relation("AuditActor")
 }
@@ -63,6 +66,8 @@ model Incident {
   id             Int          @id @default(autoincrement())
   reporterId     Int
   reporter       User         @relation("Reporter", fields: [reporterId], references: [id])
+  reportedUserId Int?
+  reportedUser   User?        @relation("Reported", fields: [reportedUserId], references: [id])
   resolved       Boolean      @default(false)
   resolverId     Int?
   resolver       User?        @relation("Resolver", fields: [resolverId], references: [id])

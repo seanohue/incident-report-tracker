@@ -1,6 +1,29 @@
 import { AbilityBuilder, PureAbility } from '@casl/ability';
 
 /**
+ * Conditions matcher for CASL - matches objects based on their properties
+ */
+function conditionsMatcher(conditions) {
+  return (object) => {
+    if (!conditions || typeof conditions !== 'object') {
+      return true;
+    }
+    
+    return Object.keys(conditions).every(key => {
+      const conditionValue = conditions[key];
+      const objectValue = object[key];
+      
+      // Handle nested objects
+      if (typeof conditionValue === 'object' && conditionValue !== null && !Array.isArray(conditionValue)) {
+        return conditionsMatcher(conditionValue)(objectValue);
+      }
+      
+      return objectValue === conditionValue;
+    });
+  };
+}
+
+/**
  * Define the abilities for the user
  * Generally, admins can view and edit anything.
  * Moderators can view and edit unresolved incidents by any users.
@@ -36,7 +59,10 @@ export function defineAbility(user) {
     
     // Can only view their own profile
     can('read', 'User', { id: user.id });
+    
+    // Can view report reasons (to select when creating incident)
+    can('read', 'ReportReason');
   }
 
-  return build();
+  return build({ conditionsMatcher });
 }

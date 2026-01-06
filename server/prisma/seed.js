@@ -6,12 +6,23 @@ async function main() {
   console.log('Seeding database...');
 
   // Create test users
-  const player = await prisma.user.upsert({
+  const player1 = await prisma.user.upsert({
     where: { email: 'alice.player@test.com' },
     update: {},
     create: {
       email: 'alice.player@test.com',
       name: 'Alice Player',
+      role: 'Player',
+      banned: false,
+    },
+  });
+
+  const player2 = await prisma.user.upsert({
+    where: { email: 'dave.player@test.com' },
+    update: {},
+    create: {
+      email: 'dave.player@test.com',
+      name: 'Dave Player',
       role: 'Player',
       banned: false,
     },
@@ -55,7 +66,7 @@ async function main() {
     });
   }
 
-  console.log('Created users:', { player, moderator, admin });
+  console.log('Created users:', { player1, player2, moderator, admin });
   console.log('Created report reasons:', reasons);
   console.log('Seeding complete!');
 }
