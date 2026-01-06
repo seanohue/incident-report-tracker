@@ -104,7 +104,11 @@ router.patch('/:id', async (req, res) => {
 
     // Handle ban/unban
     if (req.body.banned !== undefined) {
-      if (!ability.can('update', 'User', { role: targetUser.role })) {
+      const userSubject = {
+        type: 'User',
+        role: targetUser.role,
+      };
+      if (!ability.can('update', userSubject, 'banned')) {
         return res.status(403).json({ error: 'Forbidden' });
       }
       updateData.banned = req.body.banned;

@@ -59,5 +59,21 @@ export function useUsers() {
     }
   };
 
-  return { ...state, banUser };
+  const unbanUser = async (userId) => {
+    try {
+      const response = await axios.patch(
+        `/api/users/${userId}`,
+        { banned: false },
+        { headers: { 'x-user-id': appState.selectedUser?.id } }
+      );
+      // Refresh users list
+      const usersResponse = await axios.get('/api/test/users');
+      dispatch({ type: 'FETCH_SUCCESS', payload: usersResponse.data });
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  };
+
+  return { ...state, banUser, unbanUser };
 }

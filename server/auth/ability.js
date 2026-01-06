@@ -81,5 +81,20 @@ export function defineAbility(user) {
     can('read', 'ReportReason');
   }
 
-  return build({ conditionsMatcher, fieldMatcher });
+  return build({ 
+    conditionsMatcher, 
+    fieldMatcher,
+    detectSubjectType: (subject) => {
+      // If subject is a string, return it as-is
+      if (typeof subject === 'string') {
+        return subject;
+      }
+      // If subject is an object with a type property, return that
+      if (subject && typeof subject === 'object' && subject.type) {
+        return subject.type;
+      }
+      // Default fallback
+      return subject;
+    }
+  });
 }

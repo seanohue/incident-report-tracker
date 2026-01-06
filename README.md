@@ -90,7 +90,7 @@ Tests mock the backend API calls and verify component behavior without requiring
 
 - **Further automated testing**: Would like to have further automated testing, including end-to-end tests
 - **Dockerization**: Would like to have dockerized. My plan was to get a working app and then dockerize after but I ran out of time
-- **Administrative features**: Would like to have implemented administrative features
+- **Administrative features**: Would like to have implemented more administrative features such as adding new report reasons
 - **Edge cases and error handling**: I am sure there are edge cases or error cases not accounted for - things like rate limiting. As it is now, users can spam reports if they want to
 - **UI/UX improvements**: The UI is far from appealing, I did almost nothing in terms of styling or design so that would be nice to have
 - **Authentication**: In a few spots, I call out that a real app may function differently especially in terms of auth, getting something closer to "real" would have been nice

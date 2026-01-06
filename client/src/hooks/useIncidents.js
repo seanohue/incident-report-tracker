@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from 'react';
+import { useEffect, useReducer, useCallback } from 'react';
 import axios from 'axios';
 import { useApp } from '../context/AppContext';
 
@@ -42,25 +42,24 @@ export function useIncidents() {
   const { state: appState } = useApp();
   const [state, dispatch] = useReducer(incidentsReducer, initialState);
 
-  useEffect(() => {
+  const fetchIncidents = useCallback(async () => {
     if (!appState.backendHealth.isHealthy || !appState.selectedUser) {
       return;
     }
-
-    const fetchIncidents = async () => {
-      dispatch({ type: 'FETCH_START' });
-      try {
-        const response = await axios.get('/api/incidents', {
-          headers: { 'x-user-id': appState.selectedUser.id },
-        });
-        dispatch({ type: 'FETCH_SUCCESS', payload: response.data });
-      } catch (error) {
-        dispatch({ type: 'FETCH_ERROR', payload: error.message });
-      }
-    };
-
-    fetchIncidents();
+    dispatch({ type: 'FETCH_START' });
+    try {
+      const response = await axios.get('/api/incidents', {
+        headers: { 'x-user-id': appState.selectedUser.id },
+      });
+      dispatch({ type: 'FETCH_SUCCESS', payload: response.data });
+    } catch (error) {
+      dispatch({ type: 'FETCH_ERROR', payload: error.message });
+    }
   }, [appState.backendHealth.isHealthy, appState.selectedUser]);
+
+  useEffect(() => {
+    fetchIncidents();
+  }, [fetchIncidents]);
 
   const createIncident = async (reportReasonId, details, reportedUserId = null) => {
     dispatch({ type: 'CREATE_START' });
@@ -97,6 +96,7 @@ export function useIncidents() {
     ...state,
     createIncident,
     updateIncident,
+    refetch: fetchIncidents,
   };
 }
 

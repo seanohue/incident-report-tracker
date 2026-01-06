@@ -41,7 +41,7 @@ router.get('/', async (req, res) => {
       where,
       include: {
         reporter: { select: { id: true, name: true, email: true } },
-        reportedUser: { select: { id: true, name: true, email: true } },
+        reportedUser: { select: { id: true, name: true, email: true, banned: true } },
         resolver: { select: { id: true, name: true, email: true } },
         reportReason: true,
       },
@@ -71,7 +71,7 @@ router.get('/:id', async (req, res) => {
       where: { id: parseInt(req.params.id) },
       include: {
         reporter: { select: { id: true, name: true, email: true } },
-        reportedUser: { select: { id: true, name: true, email: true } },
+        reportedUser: { select: { id: true, name: true, email: true, banned: true } },
         resolver: { select: { id: true, name: true, email: true } },
         reportReason: true,
       },
@@ -82,7 +82,11 @@ router.get('/:id', async (req, res) => {
     }
 
     const ability = defineAbility(user);
-    if (!ability.can('read', 'Incident', { reporterId: incident.reporterId })) {
+    const incidentSubject = {
+      type: 'Incident',
+      reporterId: incident.reporterId,
+    };
+    if (!ability.can('read', incidentSubject)) {
       return res.status(403).json({ error: 'Forbidden' });
     }
 
@@ -107,7 +111,12 @@ router.post('/', async (req, res) => {
     }
 
     const ability = defineAbility(user);
-    if (!ability.can('create', 'Incident')) {
+    // For create, pass a subject object with the condition properties
+    const incidentSubject = {
+      type: 'Incident',
+      reporterId: user.id,
+    };
+    if (!ability.can('create', incidentSubject)) {
       return res.status(403).json({ error: 'Forbidden' });
     }
 
@@ -126,7 +135,7 @@ router.post('/', async (req, res) => {
       },
       include: {
         reporter: { select: { id: true, name: true, email: true } },
-        reportedUser: { select: { id: true, name: true, email: true } },
+        reportedUser: { select: { id: true, name: true, email: true, banned: true } },
         reportReason: true,
       },
     });
@@ -168,7 +177,14 @@ router.patch('/:id', async (req, res) => {
     const ability = defineAbility(user);
     
     // Check if user can update this incident
-    if (!ability.can('update', 'Incident', { resolved: incident.resolved })) {
+    // Create a subject object with type and properties needed for condition matching
+    const incidentSubject = {
+      type: 'Incident',
+      resolved: incident.resolved,
+      reporterId: incident.reporterId,
+    };
+    
+    if (!ability.can('update', incidentSubject)) {
       return res.status(403).json({ error: 'Forbidden' });
     }
 
@@ -206,7 +222,7 @@ router.patch('/:id', async (req, res) => {
       data: updateData,
       include: {
         reporter: { select: { id: true, name: true, email: true } },
-        reportedUser: { select: { id: true, name: true, email: true } },
+        reportedUser: { select: { id: true, name: true, email: true, banned: true } },
         resolver: { select: { id: true, name: true, email: true } },
         reportReason: true,
       },

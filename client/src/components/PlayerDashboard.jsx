@@ -36,6 +36,7 @@ export function PlayerDashboard() {
       setDetails('');
       setReportReasonId('');
       setReportedUserId('');
+      alert('Report submitted successfully.');
     } else {
       alert(`Error: ${result.error}`);
     }
@@ -142,10 +143,22 @@ export function PlayerDashboard() {
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                   <strong style={{ color: '#333' }}>{incident.reportReason.textKey}</strong>
-                  <span style={{ color: incident.resolved ? 'green' : 'red' }}>
-                    {incident.resolved ? 'Resolved' : 'Unresolved'}
+                  <span style={{ 
+                    color: incident.resolved 
+                      ? (incident.reportedUser?.banned ? 'red' : 'green')
+                      : 'red', 
+                    fontWeight: 'bold' 
+                  }}>
+                    {incident.resolved ? (
+                      incident.reportedUser?.banned ? 'Resolved with ban' : 'Resolved without banning'
+                    ) : 'Unresolved'}
                   </span>
                 </div>
+                {incident.reportedUser && (
+                  <div style={{ marginBottom: '0.5rem', color: '#666', fontSize: '0.9rem' }}>
+                    Reported player: {incident.reportedUser.name}
+                  </div>
+                )}
                 <p style={{ margin: '0.5rem 0', color: '#333' }}>{incident.details}</p>
                 <small style={{ color: '#666' }}>
                   Submitted: {new Date(incident.createdAt).toLocaleString()}
