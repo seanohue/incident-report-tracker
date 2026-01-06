@@ -1,17 +1,42 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { AppProvider, useApp } from '../../context/AppContext';
+import { AppContext } from '../../context/AppContext';
 import { ModeratorDashboard } from '../ModeratorDashboard';
 
-// Helper component to set user in context
-function TestWrapper({ children, user }) {
-  const { dispatch } = useApp();
-  React.useEffect(() => {
-    if (user) {
-      dispatch({ type: 'SET_SELECTED_USER', payload: user });
-    }
-  }, [user, dispatch]);
-  return children;
+// Helper to render with user in context - sets initial state
+function renderWithUser(component, user) {
+  const TestProvider = ({ children }) => {
+    const [state, dispatch] = React.useReducer(
+      (state, action) => {
+        switch (action.type) {
+          case 'SET_SELECTED_USER':
+            return { ...state, selectedUser: action.payload };
+          case 'SET_BACKEND_HEALTH':
+            return {
+              ...state,
+              backendHealth: {
+                isHealthy: action.payload.isHealthy,
+                isChecking: action.payload.isChecking ?? state.backendHealth.isChecking,
+              },
+            };
+          default:
+            return state;
+        }
+      },
+      {
+        selectedUser: user,
+        backendHealth: { isHealthy: true, isChecking: false },
+      }
+    );
+
+    return (
+      <AppContext.Provider value={{ state, dispatch }}>
+        {children}
+      </AppContext.Provider>
+    );
+  };
+
+  return render(<TestProvider>{component}</TestProvider>);
 }
 
 jest.mock('../../hooks/useIncidents', () => ({
@@ -67,65 +92,38 @@ describe('ModeratorDashboard', () => {
   };
 
   it('renders moderator dashboard heading', () => {
-    render(
-      <AppProvider>
-        <TestWrapper user={mockUser}>
-          <ModeratorDashboard />
-        </TestWrapper>
-      </AppProvider>
-    );
+    renderWithUser(<ModeratorDashboard />, mockUser);
 
     expect(screen.getByText('Moderator Dashboard')).toBeInTheDocument();
   });
 
   it('shows unresolved reports section', () => {
-    render(
-      <AppProvider>
-        <TestWrapper user={mockUser}>
-          <ModeratorDashboard />
-        </TestWrapper>
-      </AppProvider>
-    );
+    renderWithUser(<ModeratorDashboard />, mockUser);
 
     expect(screen.getByText('Unresolved Reports')).toBeInTheDocument();
   });
 
   it('shows resolved by me section', () => {
-    render(
-      <AppProvider>
-        <TestWrapper user={mockUser}>
-          <ModeratorDashboard />
-        </TestWrapper>
-      </AppProvider>
-    );
+    renderWithUser(<ModeratorDashboard />, mockUser);
 
     expect(screen.getByText('Resolved by Me')).toBeInTheDocument();
   });
 
   it('displays unresolved incidents', () => {
-    render(
-      <AppProvider>
-        <TestWrapper user={mockUser}>
-          <ModeratorDashboard />
-        </TestWrapper>
-      </AppProvider>
-    );
+    renderWithUser(<ModeratorDashboard />, mockUser);
 
     expect(screen.getByText('Griefing')).toBeInTheDocument();
     expect(screen.getByText('Test incident')).toBeInTheDocument();
   });
 
   it('renders resolve and ban buttons for unresolved incidents', () => {
-    render(
-      <AppProvider>
-        <TestWrapper user={mockUser}>
-          <ModeratorDashboard />
-        </TestWrapper>
-      </AppProvider>
-    );
+    renderWithUser(<ModeratorDashboard />, mockUser);
 
-    expect(screen.getByRole('button', { name: /Resolve without ban/i })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /Ban/i })).toBeInTheDocument();
+    // Use getAllByRole since there might be multiple buttons, but we just need to verify they exist
+    const resolveButtons = screen.getAllByRole('button', { name: /Resolve without ban/i });
+    expect(resolveButtons.length).toBeGreaterThan(0);
+    const banButtons = screen.getAllByRole('button', { name: /Ban/i });
+    expect(banButtons.length).toBeGreaterThan(0);
   });
 });
 

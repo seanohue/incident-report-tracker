@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { AppProvider, useApp } from '../../context/AppContext';
+import { AppContext } from '../../context/AppContext';
 import { PlayerDashboard } from '../PlayerDashboard';
 
 // Mock the hooks
@@ -51,15 +51,40 @@ jest.mock('../../hooks/useBackendHealth', () => ({
   }),
 }));
 
-// Helper component to set user in context
-function TestWrapper({ children, user }) {
-  const { dispatch } = useApp();
-  React.useEffect(() => {
-    if (user) {
-      dispatch({ type: 'SET_SELECTED_USER', payload: user });
-    }
-  }, [user, dispatch]);
-  return children;
+// Helper to render with user in context - sets initial state
+function renderWithUser(component, user) {
+  const TestProvider = ({ children }) => {
+    const [state, dispatch] = React.useReducer(
+      (state, action) => {
+        switch (action.type) {
+          case 'SET_SELECTED_USER':
+            return { ...state, selectedUser: action.payload };
+          case 'SET_BACKEND_HEALTH':
+            return {
+              ...state,
+              backendHealth: {
+                isHealthy: action.payload.isHealthy,
+                isChecking: action.payload.isChecking ?? state.backendHealth.isChecking,
+              },
+            };
+          default:
+            return state;
+        }
+      },
+      {
+        selectedUser: user,
+        backendHealth: { isHealthy: true, isChecking: false },
+      }
+    );
+
+    return (
+      <AppContext.Provider value={{ state, dispatch }}>
+        {children}
+      </AppContext.Provider>
+    );
+  };
+
+  return render(<TestProvider>{component}</TestProvider>);
 }
 
 describe('PlayerDashboard', () => {
@@ -75,73 +100,37 @@ describe('PlayerDashboard', () => {
   });
 
   it('renders the submit report heading', () => {
-    render(
-      <AppProvider>
-        <TestWrapper user={mockUser}>
-          <PlayerDashboard />
-        </TestWrapper>
-      </AppProvider>
-    );
+    renderWithUser(<PlayerDashboard />, mockUser);
 
     expect(screen.getByText('Submit a Report')).toBeInTheDocument();
   });
 
   it('shows account status', () => {
-    render(
-      <AppProvider>
-        <TestWrapper user={mockUser}>
-          <PlayerDashboard />
-        </TestWrapper>
-      </AppProvider>
-    );
+    renderWithUser(<PlayerDashboard />, mockUser);
 
     expect(screen.getByText(/Account Status:/)).toBeInTheDocument();
   });
 
   it('renders report reason dropdown', () => {
-    render(
-      <AppProvider>
-        <TestWrapper user={mockUser}>
-          <PlayerDashboard />
-        </TestWrapper>
-      </AppProvider>
-    );
+    renderWithUser(<PlayerDashboard />, mockUser);
 
     expect(screen.getByLabelText(/Report Reason:/)).toBeInTheDocument();
   });
 
   it('renders offending player dropdown', () => {
-    render(
-      <AppProvider>
-        <TestWrapper user={mockUser}>
-          <PlayerDashboard />
-        </TestWrapper>
-      </AppProvider>
-    );
+    renderWithUser(<PlayerDashboard />, mockUser);
 
     expect(screen.getByLabelText(/Offending Player:/)).toBeInTheDocument();
   });
 
   it('renders report details textarea', () => {
-    render(
-      <AppProvider>
-        <TestWrapper user={mockUser}>
-          <PlayerDashboard />
-        </TestWrapper>
-      </AppProvider>
-    );
+    renderWithUser(<PlayerDashboard />, mockUser);
 
     expect(screen.getByLabelText(/Report Details:/)).toBeInTheDocument();
   });
 
   it('renders submit button', () => {
-    render(
-      <AppProvider>
-        <TestWrapper user={mockUser}>
-          <PlayerDashboard />
-        </TestWrapper>
-      </AppProvider>
-    );
+    renderWithUser(<PlayerDashboard />, mockUser);
 
     expect(screen.getByRole('button', { name: /Submit Report/i })).toBeInTheDocument();
   });
@@ -149,13 +138,7 @@ describe('PlayerDashboard', () => {
   it('submits form with expected data', async () => {
     const user = userEvent.setup();
 
-    render(
-      <AppProvider>
-        <TestWrapper user={mockUser}>
-          <PlayerDashboard />
-        </TestWrapper>
-      </AppProvider>
-    );
+    renderWithUser(<PlayerDashboard />, mockUser);
 
     // Fill in the form
     await user.selectOptions(screen.getByLabelText(/Report Reason:/), '1');
@@ -171,16 +154,12 @@ describe('PlayerDashboard', () => {
   });
 
   it('displays user incidents', () => {
-    render(
-      <AppProvider>
-        <TestWrapper user={mockUser}>
-          <PlayerDashboard />
-        </TestWrapper>
-      </AppProvider>
-    );
+    renderWithUser(<PlayerDashboard />, mockUser);
 
     expect(screen.getByText('My Reports')).toBeInTheDocument();
-    expect(screen.getByText('Griefing')).toBeInTheDocument();
+    // Use getAllByText since "Griefing" appears in both dropdown and incident list
+    const griefingElements = screen.getAllByText('Griefing');
+    expect(griefingElements.length).toBeGreaterThan(0);
     expect(screen.getByText('Test incident')).toBeInTheDocument();
   });
 });

@@ -1,6 +1,6 @@
 import { createContext, useContext, useReducer } from 'react';
 
-const AppContext = createContext();
+export const AppContext = createContext();
 
 const initialState = {
   selectedUser: null,
