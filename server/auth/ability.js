@@ -24,6 +24,23 @@ function conditionsMatcher(conditions) {
 }
 
 /**
+ * Field matcher for CASL - checks if requested fields are allowed
+ */
+function fieldMatcher(allowedFields) {
+  return (fields) => {
+    if (!allowedFields || allowedFields.length === 0) {
+      return true;
+    }
+    
+    if (Array.isArray(fields)) {
+      return fields.every(field => allowedFields.includes(field));
+    }
+    
+    return allowedFields.includes(fields);
+  };
+}
+
+/**
  * Define the abilities for the user
  * Generally, admins can view and edit anything.
  * Moderators can view and edit unresolved incidents by any users.
@@ -64,5 +81,5 @@ export function defineAbility(user) {
     can('read', 'ReportReason');
   }
 
-  return build({ conditionsMatcher });
+  return build({ conditionsMatcher, fieldMatcher });
 }

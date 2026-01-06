@@ -21,8 +21,9 @@ const getIncidentAuditAction = (updateData, beforeState) => {
 // Get incidents (filtered by role)
 // Roles: Player (own only), Moderator (all), Admin (all)
 router.get('/', async (req, res) => {
+  let user;
   try {
-    const user = await getUser(req);
+    user = await getUser(req);
     if (!user) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
@@ -50,6 +51,9 @@ router.get('/', async (req, res) => {
     res.json(incidents);
   } catch (error) {
     console.error('Error fetching incidents:', error);
+    console.error('Error code:', error.code);
+    console.error('Error meta:', error.meta);
+    console.error('User role:', user?.role);
     res.status(500).json({ error: error.message });
   }
 });

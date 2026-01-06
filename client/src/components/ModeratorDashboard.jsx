@@ -42,13 +42,14 @@ export function ModeratorDashboard() {
         marginBottom: '1rem',
         border: '1px solid #ccc',
         borderRadius: '4px',
-        backgroundColor: 'white'
+        backgroundColor: 'white',
+        color: '#333'
       }}
     >
       <div style={{ marginBottom: '0.5rem' }}>
-        <strong>{incident.reportReason.textKey}</strong>
+        <strong style={{ color: '#333' }}>{incident.reportReason.textKey}</strong>
       </div>
-      <p style={{ margin: '0.5rem 0' }}>{incident.details}</p>
+      <p style={{ margin: '0.5rem 0', color: '#333' }}>{incident.details}</p>
       <div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '1rem' }}>
         <div>Reported by: {incident.reporter.name}</div>
         <div>Submitted: {new Date(incident.createdAt).toLocaleString()}</div>

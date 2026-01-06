@@ -141,12 +141,12 @@ export function PlayerDashboard() {
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                  <strong>{incident.reportReason.textKey}</strong>
-                  <span style={{ color: incident.resolved ? 'green' : 'orange' }}>
+                  <strong style={{ color: '#333' }}>{incident.reportReason.textKey}</strong>
+                  <span style={{ color: incident.resolved ? 'green' : 'red' }}>
                     {incident.resolved ? 'Resolved' : 'Unresolved'}
                   </span>
                 </div>
-                <p style={{ margin: '0.5rem 0' }}>{incident.details}</p>
+                <p style={{ margin: '0.5rem 0', color: '#333' }}>{incident.details}</p>
                 <small style={{ color: '#666' }}>
                   Submitted: {new Date(incident.createdAt).toLocaleString()}
                 </small>
