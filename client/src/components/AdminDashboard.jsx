@@ -8,6 +8,7 @@ import {
   Chip,
   ButtonGroup,
 } from '@mui/material';
+import { CheckCircle, NotInterested, Replay, Block, Check } from '@mui/icons-material';
 import { useApp } from '../context/AppContext';
 import { useIncidents } from '../hooks/useIncidents';
 import { useUsers } from '../hooks/useUsers';
@@ -119,6 +120,7 @@ export function AdminDashboard() {
               <Button
                 variant="contained"
                 color="success"
+                startIcon={<CheckCircle />}
                 onClick={() => handleResolve(incident.id, false)}
               >
                 Resolve without ban
@@ -126,6 +128,7 @@ export function AdminDashboard() {
               <Button
                 variant="contained"
                 color="error"
+                startIcon={<NotInterested />}
                 onClick={() => handleResolve(incident.id, true)}
               >
                 {incident.reportedUser ? `Ban ${incident.reportedUser.name}` : 'Ban'}
@@ -136,6 +139,7 @@ export function AdminDashboard() {
             <Button
               variant="contained"
               color="warning"
+              startIcon={<Replay />}
               onClick={() => handleReopen(incident.id)}
             >
               Re-open Report
@@ -187,6 +191,7 @@ export function AdminDashboard() {
                         <Button
                           variant="contained"
                           color="success"
+                          startIcon={<Check />}
                           onClick={async () => {
                             const result = await unbanUser(player.id);
                             if (result.success) {
@@ -202,6 +207,7 @@ export function AdminDashboard() {
                         <Button
                           variant="contained"
                           color="error"
+                          startIcon={<Block />}
                           onClick={async () => {
                             const result = await banUser(player.id);
                             if (result.success) {

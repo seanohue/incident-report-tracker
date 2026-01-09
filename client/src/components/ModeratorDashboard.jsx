@@ -8,6 +8,7 @@ import {
   Chip,
   ButtonGroup,
 } from '@mui/material';
+import { CheckCircle, NotInterested } from '@mui/icons-material';
 import { useApp } from '../context/AppContext';
 import { useIncidents } from '../hooks/useIncidents';
 import { useUsers } from '../hooks/useUsers';
@@ -92,6 +93,7 @@ export function ModeratorDashboard() {
               <Button
                 variant="contained"
                 color="success"
+                startIcon={<CheckCircle />}
                 onClick={() => handleResolve(incident.id, false)}
               >
                 Resolve without ban
@@ -99,6 +101,7 @@ export function ModeratorDashboard() {
               <Button
                 variant="contained"
                 color="error"
+                startIcon={<NotInterested />}
                 onClick={() => handleResolve(incident.id, true)}
               >
                 {incident.reportedUser ? `Ban ${incident.reportedUser.name}` : 'Ban'}
