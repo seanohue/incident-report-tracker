@@ -40,6 +40,36 @@ export const lightTheme = createTheme({
         root: {
           textTransform: 'none', // Disable uppercase transformation
         },
+        containedPrimary: {
+          color: lightTextOnPrimary,
+          '& .MuiButton-startIcon': {
+            color: lightTextOnPrimary,
+          },
+        },
+        containedSecondary: {
+          color: lightTextOnPrimary,
+          '& .MuiButton-startIcon': {
+            color: lightTextOnPrimary,
+          },
+        },
+        containedError: {
+          color: lightTextOnPrimary,
+          '& .MuiButton-startIcon': {
+            color: lightTextOnPrimary,
+          },
+        },
+        containedSuccess: {
+          color: lightTextOnPrimary,
+          '& .MuiButton-startIcon': {
+            color: lightTextOnPrimary,
+          },
+        },
+        containedWarning: {
+          color: lightTextOnPrimary,
+          '& .MuiButton-startIcon': {
+            color: lightTextOnPrimary,
+          },
+        },
       },
     },
     MuiChip: {
