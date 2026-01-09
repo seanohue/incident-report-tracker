@@ -1,5 +1,7 @@
+import { ThemeProvider, CssBaseline } from '@mui/material';
 import { AppProvider, useApp } from './context/AppContext';
 import { useBackendHealth } from './hooks/useBackendHealth';
+import { useTheme } from './hooks/useTheme';
 import { BackendHealthStatus } from './components/BackendHealthStatus';
 import { UserSelect } from './components/UserSelect';
 import { PlayerDashboard } from './components/PlayerDashboard';
@@ -35,10 +37,15 @@ function AppContent() {
 }
 
 function App() {
+  const theme = useTheme();
+
   return (
-    <AppProvider>
-      <AppContent />
-    </AppProvider>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AppProvider>
+        <AppContent />
+      </AppProvider>
+    </ThemeProvider>
   );
 }
 
