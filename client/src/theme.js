@@ -12,6 +12,10 @@ export const lightTheme = createTheme({
       main: primaryColor,
       contrastText: lightTextOnPrimary,
     },
+    secondary: {
+      main: '#9c27b0', // Purple for Admin role
+      contrastText: lightTextOnPrimary,
+    },
     text: {
       primary: textOnWhite,
     },
@@ -39,6 +43,10 @@ export const darkTheme = createTheme({
     mode: 'dark',
     primary: {
       main: primaryColor,
+      contrastText: lightTextOnPrimary,
+    },
+    secondary: {
+      main: '#ba68c8', // Lighter purple for dark mode Admin role
       contrastText: lightTextOnPrimary,
     },
     text: {

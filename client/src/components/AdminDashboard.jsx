@@ -1,3 +1,13 @@
+import {
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  Box,
+  Container,
+  Chip,
+  ButtonGroup,
+} from '@mui/material';
 import { useApp } from '../context/AppContext';
 import { useIncidents } from '../hooks/useIncidents';
 import { useUsers } from '../hooks/useUsers';
@@ -67,92 +77,72 @@ export function AdminDashboard() {
   };
 
   const IncidentCard = ({ incident }) => {
-    // Determine resolution status
-    let resolutionStatus = null;
-    if (incident.resolved) {
-      if (incident.reportedUser?.banned) {
-        resolutionStatus = 'Resolved with ban';
-      } else {
-        resolutionStatus = 'Resolved without banning';
-      }
-    }
+    const resolutionStatus = incident.resolved
+      ? incident.reportedUser?.banned
+        ? 'Resolved with ban'
+        : 'Resolved without banning'
+      : null;
 
     return (
-      <div
-        style={{
-          padding: '1rem',
-          marginBottom: '1rem',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-          backgroundColor: 'white',
-          color: '#333'
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-          <strong style={{ color: '#333' }}>{incident.reportReason.textKey}</strong>
-          {resolutionStatus && (
-            <span style={{ 
-              color: resolutionStatus === 'Resolved with ban' ? 'red' : '#28a745', 
-              fontWeight: 'bold' 
-            }}>
-              {resolutionStatus}
-            </span>
+      <Card sx={{ mb: 2 }}>
+        <CardContent>
+          <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+            <Typography variant="h6" component="div">
+              {incident.reportReason.textKey}
+            </Typography>
+            {resolutionStatus && (
+              <Chip
+                label={resolutionStatus}
+                color={resolutionStatus === 'Resolved with ban' ? 'error' : 'success'}
+                sx={{ fontWeight: 'bold' }}
+              />
+            )}
+          </Box>
+          <Typography variant="body1" paragraph>
+            {incident.details}
+          </Typography>
+          <Box mb={2}>
+            <Typography variant="body2" color="text.secondary">
+              Reported by: {incident.reporter.name}
+            </Typography>
+            {incident.reportedUser && (
+              <Typography variant="body2" color="text.secondary">
+                Reported player: {incident.reportedUser.name}
+              </Typography>
+            )}
+            <Typography variant="body2" color="text.secondary">
+              Submitted: {new Date(incident.createdAt).toLocaleString()}
+            </Typography>
+          </Box>
+          {!incident.resolved && (
+            <ButtonGroup>
+              <Button
+                variant="contained"
+                color="success"
+                onClick={() => handleResolve(incident.id, false)}
+              >
+                Resolve without ban
+              </Button>
+              <Button
+                variant="contained"
+                color="error"
+                onClick={() => handleResolve(incident.id, true)}
+              >
+                {incident.reportedUser ? `Ban ${incident.reportedUser.name}` : 'Ban'}
+              </Button>
+            </ButtonGroup>
           )}
-        </div>
-        <p style={{ margin: '0.5rem 0', color: '#333' }}>{incident.details}</p>
-        <div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '1rem' }}>
-          <div>Reported by: {incident.reporter.name}</div>
-          {incident.reportedUser && (
-            <div>Reported player: {incident.reportedUser.name}</div>
+          {incident.resolved && (
+            <Button
+              variant="contained"
+              color="warning"
+              onClick={() => handleReopen(incident.id)}
+            >
+              Re-open Report
+            </Button>
           )}
-          <div>Submitted: {new Date(incident.createdAt).toLocaleString()}</div>
-        </div>
-        {!incident.resolved && (
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button
-              onClick={() => handleResolve(incident.id, false)}
-              style={{
-                padding: '0.5rem 1rem',
-                backgroundColor: '#28a745',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              Resolve without ban
-            </button>
-            <button
-              onClick={() => handleResolve(incident.id, true)}
-              style={{
-                padding: '0.5rem 1rem',
-                backgroundColor: '#dc3545',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer'
-              }}
-            >
-              {incident.reportedUser ? `Ban ${incident.reportedUser.name}` : 'Ban'}
-            </button>
-          </div>
-        )}
-        {incident.resolved && (
-          <button
-            onClick={() => handleReopen(incident.id)}
-            style={{
-              padding: '0.5rem 1rem',
-              backgroundColor: '#ffc107',
-              color: '#333',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
-            Re-open Report
-          </button>
-        )}
-      </div>
+        </CardContent>
+      </Card>
     );
   };
 
@@ -160,132 +150,125 @@ export function AdminDashboard() {
   const players = users.filter(u => u.role === 'Player');
 
   return (
-    <div>
-      <h2>Admin Dashboard</h2>
+    <Container maxWidth="lg">
+      <Typography variant="h4" component="h2" gutterBottom>
+        Admin Dashboard
+      </Typography>
 
-      <div style={{ marginTop: '2rem' }}>
-        <h3>All Players</h3>
+      <Box mt={4}>
+        <Typography variant="h5" component="h3" gutterBottom>
+          All Players
+        </Typography>
         {usersLoading ? (
-          <p>Loading players...</p>
+          <Typography>Loading players...</Typography>
         ) : players.length === 0 ? (
-          <p>No players found.</p>
+          <Typography>No players found.</Typography>
         ) : (
-          <div>
+          <Box>
             {players.map(player => (
-              <div
-                key={player.id}
-                style={{
-                  padding: '1rem',
-                  marginBottom: '1rem',
-                  border: '1px solid #ccc',
-                  borderRadius: '4px',
-                  backgroundColor: 'white',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center'
-                }}
-              >
-                <div>
-                  <strong style={{ color: '#333' }}>{player.name || player.email}</strong>
-                  <div style={{ fontSize: '0.9rem', color: '#666', marginTop: '0.25rem' }}>
-                    {player.email} • {player.banned ? (
-                      <span style={{ color: 'red', fontWeight: 'bold' }}>BANNED</span>
-                    ) : (
-                      <span style={{ color: 'green' }}>Active</span>
-                    )}
-                  </div>
-                </div>
-                <div>
-                  {player.banned ? (
-                    <button
-                      onClick={async () => {
-                        const result = await unbanUser(player.id);
-                        if (result.success) {
-                          alert(`${player.name || player.email} has been unbanned.`);
-                        } else {
-                          alert(`Failed to unban: ${result.error}`);
-                        }
-                      }}
-                      style={{
-                        padding: '0.5rem 1rem',
-                        backgroundColor: '#28a745',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      Unban
-                    </button>
-                  ) : (
-                    <button
-                      onClick={async () => {
-                        const result = await banUser(player.id);
-                        if (result.success) {
-                          alert(`${player.name || player.email} has been banned.`);
-                        } else {
-                          alert(`Failed to ban: ${result.error}`);
-                        }
-                      }}
-                      style={{
-                        padding: '0.5rem 1rem',
-                        backgroundColor: '#dc3545',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      Ban
-                    </button>
-                  )}
-                </div>
-              </div>
+              <Card key={player.id} sx={{ mb: 2 }}>
+                <CardContent>
+                  <Box display="flex" justifyContent="space-between" alignItems="center">
+                    <Box>
+                      <Typography variant="h6" component="div">
+                        {player.name || player.email}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {player.email} •{' '}
+                        {player.banned ? (
+                          <Chip label="BANNED" color="error" size="small" sx={{ fontWeight: 'bold' }} />
+                        ) : (
+                          <Chip label="Active" color="success" size="small" />
+                        )}
+                      </Typography>
+                    </Box>
+                    <Box>
+                      {player.banned ? (
+                        <Button
+                          variant="contained"
+                          color="success"
+                          onClick={async () => {
+                            const result = await unbanUser(player.id);
+                            if (result.success) {
+                              alert(`${player.name || player.email} has been unbanned.`);
+                            } else {
+                              alert(`Failed to unban: ${result.error}`);
+                            }
+                          }}
+                        >
+                          Unban
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="contained"
+                          color="error"
+                          onClick={async () => {
+                            const result = await banUser(player.id);
+                            if (result.success) {
+                              alert(`${player.name || player.email} has been banned.`);
+                            } else {
+                              alert(`Failed to ban: ${result.error}`);
+                            }
+                          }}
+                        >
+                          Ban
+                        </Button>
+                      )}
+                    </Box>
+                  </Box>
+                </CardContent>
+              </Card>
             ))}
-          </div>
+          </Box>
         )}
-      </div>
+      </Box>
 
-      <div style={{ marginTop: '2rem' }}>
-        <h3>Unresolved Reports</h3>
+      <Box mt={4}>
+        <Typography variant="h5" component="h3" gutterBottom>
+          Unresolved Reports
+        </Typography>
         {loading ? (
-          <p>Loading incidents...</p>
+          <Typography>Loading incidents...</Typography>
         ) : unresolved.length === 0 ? (
-          <p>No unresolved reports.</p>
+          <Typography>No unresolved reports.</Typography>
         ) : (
-          <div>
+          <Box>
             {unresolved.map(incident => (
               <IncidentCard key={incident.id} incident={incident} />
             ))}
-          </div>
+          </Box>
         )}
-      </div>
+      </Box>
 
-      <div style={{ marginTop: '2rem' }}>
-        <h3>Resolved by Me</h3>
+      <Box mt={4}>
+        <Typography variant="h5" component="h3" gutterBottom>
+          Resolved by Me
+        </Typography>
         {resolvedByMe.length === 0 ? (
-          <p>No reports resolved yet.</p>
+          <Typography>No reports resolved yet.</Typography>
         ) : (
-          <div>
+          <Box>
             {resolvedByMe.map(incident => (
               <IncidentCard key={incident.id} incident={incident} />
             ))}
-          </div>
+          </Box>
         )}
-      </div>
+      </Box>
 
-      <div style={{ marginTop: '2rem' }}>
-        <h3>Resolved by Others</h3>
+      <Box mt={4}>
+        <Typography variant="h5" component="h3" gutterBottom>
+          Resolved by Others
+        </Typography>
         {resolvedByOthers.length === 0 ? (
-          <p>No reports resolved by others.</p>
+          <Typography>No reports resolved by others.</Typography>
         ) : (
-          <div>
+          <Box>
             {resolvedByOthers.map(incident => (
               <IncidentCard key={incident.id} incident={incident} />
             ))}
-          </div>
+          </Box>
         )}
-      </div>
-    </div>
+      </Box>
+    </Container>
   );
 }

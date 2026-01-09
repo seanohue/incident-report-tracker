@@ -1,5 +1,19 @@
+import { FormControl, InputLabel, Select, MenuItem, Box, Chip, Typography, CircularProgress, Alert } from '@mui/material';
 import { useUsers } from '../hooks/useUsers';
 import { useApp } from '../context/AppContext';
+
+const getRoleColor = (role) => {
+  switch (role) {
+    case 'Player':
+      return 'warning'; // Yellow
+    case 'Moderator':
+      return 'primary'; // Blue
+    case 'Admin':
+      return 'secondary'; // Purple
+    default:
+      return 'default';
+  }
+};
 
 export function UserSelect() {
   const { users, loading, error } = useUsers();
@@ -12,38 +26,45 @@ export function UserSelect() {
   };
 
   if (loading) {
-    return <p>Loading users...</p>;
+    return <CircularProgress size={24} />;
   }
 
   if (error) {
-    return <p style={{ color: 'red' }}>Error loading users: {error}</p>;
+    return <Alert severity="error">Error loading users: {error}</Alert>;
   }
 
   return (
-    <div>
-      <label htmlFor="user-select" style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-        Select User:
-      </label>
-      <select
+    <FormControl fullWidth sx={{ mb: 2, minWidth: 300 }}>
+      <InputLabel id="user-select-label">Select User</InputLabel>
+      <Select
+        labelId="user-select-label"
         id="user-select"
         value={state.selectedUser?.id || ''}
         onChange={handleUserChange}
-        style={{
-          padding: '0.5rem',
-          fontSize: '1rem',
-          minWidth: '300px',
-          borderRadius: '4px',
-          border: '1px solid #ccc'
+        label="Select User"
+        renderValue={(value) => {
+          const user = users.find(u => u.id === value);
+          if (!user) return '';
+          return (
+            <Box display="flex" alignItems="center" gap={1}>
+              <Typography>{user.name}</Typography>
+              <Chip label={user.role} color={getRoleColor(user.role)} size="small" />
+              {user.banned && <Chip label="BANNED" color="error" size="small" />}
+            </Box>
+          );
         }}
       >
-        <option value="">-- Select a user --</option>
         {users.map(user => (
-          <option key={user.id} value={user.id}>
-            {user.name} ({user.role}){user.banned ? ' [BANNED]' : ''}
-          </option>
+          <MenuItem key={user.id} value={user.id}>
+            <Box display="flex" alignItems="center" gap={1} width="100%">
+              <Typography>{user.name}</Typography>
+              <Chip label={user.role} color={getRoleColor(user.role)} size="small" />
+              {user.banned && <Chip label="BANNED" color="error" size="small" />}
+            </Box>
+          </MenuItem>
         ))}
-      </select>
-    </div>
+      </Select>
+    </FormControl>
   );
 }
 

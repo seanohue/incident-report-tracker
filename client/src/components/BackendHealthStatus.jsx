@@ -1,24 +1,33 @@
+import { Box, Tooltip, CircularProgress } from '@mui/material';
+import { CheckCircle, Error } from '@mui/icons-material';
+
 export function BackendHealthStatus({ isHealthy, isChecking }) {
   if (isChecking) {
     return (
-      <div style={{ padding: '0.5rem', backgroundColor: '#fff3cd', borderRadius: '4px', marginBottom: '1rem', color: '#856404' }}>
-        Checking backend status...
-      </div>
+      <Box mb={2}>
+        <Tooltip title="Checking backend status...">
+          <CircularProgress size={24} />
+        </Tooltip>
+      </Box>
     );
   }
 
   if (!isHealthy) {
     return (
-      <div style={{ padding: '0.5rem', backgroundColor: '#f8d7da', borderRadius: '4px', marginBottom: '1rem', color: '#721c24' }}>
-        ⚠️ Backend is offline. Retrying every 30 seconds...
-      </div>
+      <Box mb={2}>
+        <Tooltip title="Backend is offline. Retrying every 30 seconds...">
+          <Error color="error" sx={{ fontSize: 28 }} />
+        </Tooltip>
+      </Box>
     );
   }
 
   return (
-    <div style={{ padding: '0.5rem', backgroundColor: '#d1e7dd', borderRadius: '4px', marginBottom: '1rem', color: '#0f5132' }}>
-      ✓ Backend is online
-    </div>
+    <Box mb={2}>
+      <Tooltip title="Backend is online">
+        <CheckCircle color="success" sx={{ fontSize: 28 }} />
+      </Tooltip>
+    </Box>
   );
 }
 
